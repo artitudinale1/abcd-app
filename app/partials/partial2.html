@@ -1,0 +1,59 @@
+
+<div ng-controller="Cntl1"  >
+<h3 id="title">Vote your ABCD awards</h3>
+
+<p ng-click="logout()" > <a href="#">LOGOUT</a> </p>
+
+
+
+
+
+      <p > Logged in as <b> {{ userlogged }} </b>  </p>
+      <p> Vote for the month of <b> {{month }} </b></p>
+
+
+<div id="personeTo"> </div>
+
+<br/>
+
+
+<form ng-submit="addVote()" name="myForm" novalidate id="form" >
+
+  <select  id="userslist" ng-model="voteTo" >
+
+
+               <option ng-repeat="user in users"  id="{{ user.pic }}" value=" {{ user.name }}">{{ user.name }}   </option>
+  			   
+		</select>
+
+         
+          <textarea rows="4" cols="50" ng-model="voteMotivation"  placeholder="I nominate this person because.." required> </textarea> <br/>
+     <input id="vote_bt" class="btn-primary" type="submit" value="Vote!"  ng-disabled="myForm.$invalid">
+
+
+
+</form>
+
+<p id="JPacess" ng-click="viewResults()"> <a href="javascript:return false;"> VIEW RESULTS </a> </p>
+
+
+</div>
+
+<script type="text/javascript">
+
+var selectmenu=document.getElementById("userslist")
+selectmenu.onchange=function(){ //run some code when "onchange" event fires
+ var chosenoption=this.options[this.selectedIndex] //this refers to "selectmenu"
+ if (chosenoption.value!="nothing"){
+
+  document.getElementById('personeTo')
+    .innerHTML = '<p>' + 'You are voting for '+ '<i>' + chosenoption.label + '</i>' + '</p>' + '<img id="voted-pic" src=" '+ chosenoption.id  + '"/>'
+
+//alert(chosenoption.id )
+
+
+   //open target site (based on option's value attr) in new window
+ }
+}
+
+</script>

@@ -1,0 +1,105 @@
+
+<div ng-app ng-controller="Cntl2"  >
+
+
+  <div id="left">
+  <p > Signed in as <i id="userlogged"> {{  userlogged1 }} </i>  </p>
+
+</div>
+
+
+
+<div id="right">
+    
+    <p ng-click="logout()" > <a href="#">SIGN OUT</a> </p>
+</div>
+<div id="clear">
+   <div align="center"><img src="img/dot.png"/></div>
+<p style="text-align:left"><img src="img/results.png" valign="middle"/> Results for the month of <b> <i> {{  month1 }}</i> </b></p>
+
+ </div>
+
+
+
+      <ul  class="unstyled" > 
+ <li ng-repeat="arreyM2 in arreyM2 |  orderBy:'vote':true" style="padding-left:50px;">
+<img src=" {{arreyM2.pic }}" /> {{ arreyM2.name}} <b style="font-size:14pt; color: #64aec8; padding-left:5px;"  > {{arreyM2.vote}} </b></li>
+</ul>
+
+<div id="clear">
+   <div align="center"><img src="img/dot.png"/></div>
+<p style="text-align:left"><img src="img/results.png" valign="middle"/> Results for the all year </p>
+
+ </div>
+
+<ul  class="unstyled" >
+ <li ng-repeat="arreyM in arreyM  | orderBy:'vote':true " style="padding-left:50px;">
+<img src=" {{arreyM.pic }}" /> {{ arreyM.name}} <b style="font-size:14pt; color: #64aec8; padding-left:5px;"> {{arreyM.vote}} </b> </li>
+</ul>
+
+<div id="clear">
+   <div align="center"><img src="img/dot.png"/></div>
+<p style="text-align:left"><img src="img/dettail.png" valign="middle"/> Result details for <b> <i> {{  month1 }} </i> </b></p>
+
+ </div>
+
+
+
+
+<ul class="unstyled" id="lista"   >
+
+      <li  ng-repeat="votemonths in votemonths |  orderBy:'date':true"  class="votes">
+
+
+
+<div class="nameimg" style="float:left"> <img align="center" src=" {{ votemonths.picfrom }}" /><p class="names">{{votemonths.from}}</p> </div>
+<div style="position:absolute"><p width='40' style="margin-left:120px"  > Voted .. </p></div>
+ <div class="nameimg" style="float:right"> <img align="center" src=" {{ votemonths.picto }}" />  <br/> <p class="names">  {{votemonths.to }}</p> </div>
+
+<div   ng-click="toggle = !toggle " ><div class="det" ng-class="{ active : flag }" ng-click="flag = !flag"><span style="position: relative; margin-left: 30px;">  VIEW DETAILS</span></div></div>
+
+
+ <div ng-show="toggle" ng-hide="toggle"
+            ng-animate="{show: 'example-show', hide: 'example-hide'}"  data-ng-animate="'fade'" class ="motivation check-element" style="clear:both; background:white;  margin-top: -10px;
+background-color: white;
+
+margin-left: -10px;
+margin-right: -4px;
+padding: 0px 16px;
+}">
+
+<p style="text-align:left; margin-bottom: -11px;"><b>{{votemonths.from}} </b> Voted .. <b> {{votemonths.to }} </b></p> 
+<p style="line-height: 185%;  text-align:left "> {{votemonths.motivation }}</p>
+  <p style="text-align:right"><i>{{votemonths.date }}</i></p>  </div>
+     
+     
+
+      </li>
+    </ul>
+
+
+<div id="clear">
+   <div align="center"><img src="img/dot.png"/></div>
+<p style="text-align:left"><img src="img/bin.png" valign="middle"/> Remove users:</p>
+
+ </div>
+
+
+<div align="center">
+
+
+        <form ng-submit="Delete_user(name)" name="delete" novalidate id="form2" >
+           <select  id="userslist" ng-model="name" >
+
+
+               <option ng-repeat="user in users"  id="{{ user.name }}" value=" {{ user.name }}">{{ user.name }}   </option>
+           
+            </select> <br/>
+
+      <input id="delete1" type="submit" value="Delete" class="btn" >
+    </form>
+  </div>
+
+</div>
+
+

@@ -1,0 +1,1115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Invoice ${invoice.number}</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<!-- These variables determine how dates and numbers are formatted -->
+    #set( $DATE_FORMAT = ${company.companySettings.dateFormat.velocityFormatString} )
+    #set( $TIMEZONE_OFFSET_MILLISECONDS = ${company.companySettings.timeZone.intOffset} )
+    #set( $THOUSANDS_SEPARATOR = "," )
+    #set( $DECIMAL_POINT = "." )
+<!-- To set the height of the logo change $LOGO_HEIGHT in pixel-->
+    #set( $LOGO_HEIGHT = 120 )
+<!-- To show or hide VAT columns, set $DISPLAY_VAT to true/false -->
+    #set( $DISPLAY_VAT = false )
+<!-- To show or hide STAGE ITEMS inside STAGES, set $DISPLAY_STAGE_ITEMS to true/false -->
+    #set( $DISPLAY_STAGE_ITEMS = false )
+<!-- To show or hide STAGE ITEM PRICE inside STAGES, set $DISPLAY_STAGE_ITEMS_PRICE to true/false -->
+    #set( $DISPLAY_STAGE_ITEMS_PRICE = false)
+<!-- To show the quote note of the item instead the billing note, set $DISPLAY_INTERNAL_NOTE to true/false -->
+    #set( $DISPLAY_INTERNAL_NOTE = false )
+<!-- To display the RATE and the QUANTITY, set $DISPLAY_RATE_AND_QUANTITY to true/false -->
+    #set( $DISPLAY_RATE_AND_QUANTITY = false )
+<!-- To show only the Total amount of Fees, Expenses and Purchases, set $DISPLAY_ONLY_TOTAL_INVOICE to true/false -->
+    #set( $DISPLAY_ONLY_TOTAL_INVOICE = false)
+<!-- End -->
+
+<!-- BACS Details -->
+    #set ( $ACCOUNT_NAME = "Company account name")
+    #set ( $ACCOUNT_NUMBER = "123456789")
+    #set ( $SORT_CODE = "11-22-33")
+    #set ( $VAT_NUMBER = "abc1234568789")
+<!-- END 
+ -->
+
+<script type="text/javascript"
+        src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+var pageNumber = 1;
+var onlyTotal = ${DISPLAY_ONLY_TOTAL_INVOICE};
+
+$(document).ready(function () {
+    createNewPage(false, true);
+    $(".formattedNumber").each(formatNumber);
+
+    $(".jobDescription").appendTo(getCurrentContentHolder());
+
+    if (!onlyTotal) {
+        createNewTable();
+
+        var rows = $("#items > TBODY").children();
+        sort(rows);
+       // rows.each(iterateRow);
+    }
+
+    var itemsSummary = $("#itemsSummary");
+    itemsSummary.appendTo(getCurrentContentHolder());
+
+    if (getRemainingContentHeight() < 1) {
+        createNewPage(true, true);
+        itemsSummary.appendTo(getCurrentContentHolder());
+    }
+
+    if ($("#annex").contents().length > 0) {
+        createNewPage(true, true, true);
+        var clearAnnex = getNewClearAnnex();
+        clearAnnex.appendTo(getCurrentContentHolder());
+        var paragraphs = getNewAnnex().children();
+        paragraphs.each(iterateAnnex);
+    }
+
+    $('.pageTotal').each(function () {
+        $(this).text("" + (pageNumber - 1));
+    })
+
+    //remove old content
+    $("#data").remove();
+});
+
+function appendPageNumber() {
+    //getNewPageNumerator().appendTo(getCurrentFooterHolder());
+    var pageNumerator = getNewPageNumerator();
+    $(pageNumerator).find('.pageNumber').text("" + pageNumber);
+    pageNumerator.appendTo(getCurrentFooterHolder());
+    pageNumber = pageNumber + 1;
+}
+
+function getNewPageNumerator() {
+    var result = $("#pageNumerator").clone();
+    result.removeAttr("id");
+    return result;
+}
+
+function getCurrentContentHolder() {
+    return $("#currentPage #content")[0];
+}
+
+function getCurrentHeaderHolder() {
+    return $("#currentPage #header")[0];
+}
+
+function getCurrentFooterHolder() {
+    return $("#currentPage #footer")[0];
+}
+
+function getCurrentContentWrapper() {
+    return $("#currentPage  #contentWrapper")[0];
+}
+
+function getNewHeader() {
+    var result = $("#pageHeader").clone();
+    result.removeAttr("id");
+    return result;
+}
+
+function getNewFooter() {
+    var result = $("#pageFooter").clone();
+    result.removeAttr("id");
+    return result;
+}
+
+function getNewAnnex() {
+    var result = $("#annex").clone();
+    result.removeAttr("id");
+    return result;
+}
+
+function getNewClearAnnex() {
+    var result = $("#annex").clone();
+    result.removeAttr("id");
+    result.children().remove();
+    return result;
+}
+
+function getNewSmallTop() {
+    var result = $("#topSmall").clone();
+    result.removeAttr("id");
+    return result;
+}
+
+function getNewLeftColumn(showAddress) {
+    var result = $("#leftColumn").clone();
+    if (!showAddress) {
+        var addr = result.children()[0];
+        $(addr).remove();
+        result[0].style.paddingTop = "55mm";
+    }
+
+    return result;
+}
+
+function getMaxContentHeight() {
+    return getCurrentContentWrapper().offsetHeight;
+}
+
+function getCurrentContentHeight() {
+    return getCurrentContentHolder().offsetHeight + getCurrentContentHolder().offsetTop;
+}
+
+function getRemainingContentHeight() {
+    return getMaxContentHeight() - getCurrentContentHeight();
+}
+
+function createNewTable() {
+    var table = $("#currentItems");
+
+    if (table.length > 0) {
+        table.removeAttr("id");
+    }
+
+    var result = $("#items").clone();
+    result.attr("id", "currentItems");
+    result.appendTo(getCurrentContentHolder());
+
+    //todo: how to remove body before appending?
+    $("#currentItems > tbody").children().remove();
+
+}
+
+function createNewPage(includeHeader, includeFooter, isAnnex) {
+    var page = $("#currentPage");
+
+    if (page.length > 0) {
+        page.removeAttr("id");
+
+        var pageBreak = $("#pageBreak").clone();
+        pageBreak.removeAttr("id");
+        pageBreak.appendTo("#result");
+    }
+
+    var newPage = $("#page").clone();
+    newPage.attr("id", "currentPage");
+    newPage.appendTo("#result");
+ 
+    if (pageNumber > 1 || isAnnex) {
+        getNewSmallTop().appendTo(getCurrentContentHolder());
+    } else {
+        $("#top").appendTo(getCurrentContentHolder());
+    }
+
+    if (includeHeader) {
+        getNewHeader().appendTo(getCurrentHeaderHolder());
+    }
+
+    if (includeFooter) {
+        getNewFooter().appendTo(getCurrentFooterHolder());
+    }
+    if (!isAnnex) {
+        appendPageNumber(false);
+    }
+}
+
+function iterateRow(rowIndex) {
+    var row = $(this);
+
+    $("#currentItems > TBODY").append(row);
+
+    var remainingSpace = getRemainingContentHeight();
+    if (remainingSpace < 1) {
+        createNewPage(true, true);
+        createNewTable();
+        $("#currentItems > TBODY").append(row);
+    }
+
+}
+
+function iterateAnnex(paragraphIndex) {
+    var paragraph = $(this);
+    paragraph.appendTo(getCurrentContentHolder().children[0]);
+
+    var remainingSpace = getRemainingContentHeight();
+    if (remainingSpace < 1) {
+        createNewPage(true, true);
+        getNewClearAnnex().appendTo(getCurrentContentHolder());
+        paragraph.appendTo(getCurrentContentHolder().children[0]);
+    }
+
+}
+
+function getProperty(object, propertyName) {
+    var classes = object.className.split(/\s+/);
+    for (var i = 0; i < classes.length; i++) {
+        var c = classes[i];
+        if (c.substring(0, propertyName.length + 1) == propertyName + "-") {
+            return c.substring(propertyName.length + 1);
+        }
+    }
+}
+
+function sort(rows) {
+    var isSorted = false;
+
+    while (!isSorted) {
+        isSorted = true;
+        for (var i = 0; i < (rows.length - 1); i++) {
+            var r1 = rows[i];
+            var r2 = rows[i + 1];
+            var comparable1 = getProperty(r1, "order");
+            var comparable2 = getProperty(r2, "order");
+
+            if (comparable1 && comparable2) {
+                comparable1 = comparable1.substring(comparable1.length - 5);
+                comparable2 = comparable2.substring(comparable2.length - 5);
+
+                if (comparable1 > comparable2) {
+                    isSorted = false;
+                    rows[i] = r2;
+                    rows[i + 1] = r1;
+                }
+            }
+        }
+    }
+}
+
+function formatNumber() {
+    var number = parseFloat(this.innerHTML);
+    var formattedString = '0${THOUSANDS_SEPARATOR}00';
+    if (!isNaN(number)) {
+        formattedString = number.toFixed(2);
+    }
+    formattedString = number_format(formattedString, 2, '${DECIMAL_POINT}', '${THOUSANDS_SEPARATOR}');
+    this.innerHTML = formattedString;
+}
+
+function number_format(number, decimals, dec_point, thousands_sep) {
+    number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+    var n = !isFinite(+number) ? 0 : +number,
+            prec = !isFinite(+decimals) ? 0 : Math.abs(decimals), sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+            dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+            s = '',
+            toFixedFix = function (n, prec) {
+                var k = Math.pow(10, prec);
+                return '' + Math.round(n * k) / k;
+            };
+    // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+    s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+    if (s[0].length > 3) {
+        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+    }
+    if ((s[1] || '').length < prec) {
+        s[1] = s[1] || '';
+        s[1] += new Array(prec - s[1].length + 1).join('0');
+    }
+    return s.join(dec);
+}
+
+</script>
+
+<style type="text/css">
+<!--
+html, body, tr, td, table, p {
+    padding: 0;
+    margin: 0;
+}
+
+html, body {
+    font-family: Verdana;
+    font-size: 10px;
+    /*letter-spacing: -0.05em;*/
+}
+
+h1 {
+    color: #999;
+    font-weight: normal;
+    font-size: 26px;
+    padding: 0;
+    margin: 0;
+}
+
+h2 {
+    color: #000;
+    font-weight: normal;
+    font-size: 16px;
+}
+
+.pageTable {
+    border-collapse: collapse;
+    border: 0 none;
+    margin: 0 auto;
+    height: 272mm;
+    width: 190mm;
+}
+
+    /*
+        pdf-page-vmargin: 10mm;
+        pdf-page-hmargin: 10mm;
+        pdf-page-width: 210mm;
+        pdf-page-height: 297mm;
+    */
+
+@media screen {
+    body {
+        background-color: #e0e0e0;
+    }
+
+    .page {
+        background-color: #ffffff;
+        border: 1px solid black;
+        margin: 1cm auto;
+        height: 297mm;
+        width: 210mm;
+    }
+
+    .pageTable {
+        margin-top: 10mm;
+        margin-left: 10mm;
+    }
+}
+
+#content {
+    width: 183mm;
+}
+
+table.table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.items tr td, table.items tr th {
+    padding: 10px;
+    padding-left: 0px;
+}
+
+table.items tr th {
+    width: 100%;
+    font-weight: bold;
+    font-size: 12px;
+    text-align: right;
+    padding-top: 12px;
+}
+
+table.items tr td {
+    vertical-align: top;
+}
+
+table.items tr td li {
+    margin-left: 2em;
+}
+
+.note {
+    color: #999;
+}
+
+.pageBreak {
+    page-break-before: always;
+}
+
+.contentWrapper {
+    height: 100%;
+    vertical-align: top;
+}
+
+.footerWrapper {
+    vertical-align: bottom;
+}
+
+#data {
+    visibility: hidden;
+}
+
+#jsWarning {
+    visibility: visible;
+}
+
+#top {
+    margin-bottom: 2ex;
+}
+
+.pageHeader {
+    margin-bottom: 2ex;
+}
+
+.pageHeader, .pageFooter {
+    width: 100%;
+    color: #999;
+    text-align: center;
+    line-height: 16px;
+}
+
+.annex {
+    text-align: left;
+}
+
+#itemsSummary {
+    margin-top: 7mm;
+    padding: 0 10px 10px 10px;
+    font-size: 12px;
+}
+
+#recipientAddress {
+    padding-bottom: 21mm;
+}
+
+.recipientsAddress {
+    line-height: 16px;
+    width: 60mm;
+    vertical-align: top;
+    padding-top: 10mm;
+    font-weight: bold;
+}
+
+#sendersAddress {
+    line-height: 16px;
+}
+
+.attribute {
+    line-height: 16px;
+}
+
+#titleAttribute {
+    font-size: 15px;
+}
+
+td.leftColumnAttributeName {
+    font-weight: bold;
+}
+
+td.leftColumnAttributeValue {
+    border-bottom: 1px solid #if("$!company.rowColor" != "") ${company.rowColor} #end ;
+    padding-bottom: 4mm;
+}
+
+.leftColumnWrapper {
+    width: 45mm;
+    padding-right: 8mm;
+    vertical-align: top;
+    padding-top: 22mm;
+    max-width: 45mm;
+}
+
+.notice {
+    font-weight: normal;
+    font-size: 12px;
+    letter-spacing: -0.05em;
+}
+
+.imageContainer {
+    width: 70mm;
+    vertical-align: top;
+}
+
+.formattedNumber {
+    white-space: nowrap;
+}
+
+.jobTitle {
+    font-size: 16px;
+}
+
+.companyDetails {
+    font-weight: bold;
+    text-align: left;
+    float: right;
+}
+
+.pageNumerator {
+    width: 45mm;
+    padding-right: 8mm;
+}
+
+.title {
+    font-weight: bold;
+    background: #b2c5d9;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+#footer2{
+
+    font-size: 7pt;
+    margin-top:100px;
+}
+
+-->
+</style>
+</head>
+<body>
+
+<div id="data">
+
+<div id="jsWarning">Script Execution has Failed! There are script errors in your template code, or Java Script is not enabled in your browser. Please fix and try again.</div>
+<!--
+    #macro( flexRichTextToHtml $htmlText )
+        #set( $htmlText = $htmlText.replaceAll("</?FONT[^>]*>", "") )
+        #set( $htmlText = $htmlText.replaceAll("</?TEXTFORMAT[^>]*>", "") )
+        $!{htmlText}
+    #end
+
+    #macro( htmlFormatText $htmlText )
+        #set( $htmlText = $htmlText.replaceAll("\n", "<br />") )
+        $!{htmlText}
+    #end
+-->
+
+<div id="topSmall">
+    <table width="100%">
+        <tr>
+            <td class="recipientsAddress"></td>
+            <td class="imageContainer" align="right" style="padding-bottom: 10mm;">
+                #if( "$!company.logo" != "" )
+                    <img src="data:image/png;base64,${company.logo}"
+                         alt="CompanyImage"
+                         height="$LOGO_HEIGHT"
+                            />
+                #end
+            </td>
+        </tr>
+    </table>
+</div>
+
+<DIV id="top">
+    <!--
+    ********************************************************************************
+    BEGINNING OF TOP SECTION
+    ********************************************************************************
+    -->
+    <table width="100%" style:"margin-bottom:30px;">
+    <tr>
+
+        <td class="imageContainer" align="center">
+            #if( "$!company.logo" != "" )
+                <img src="data:image/png;base64,${company.logo}"
+                     alt="CompanyImage"
+                     height="$LOGO_HEIGHT"
+                        />
+            #end
+        </td>
+    </tr>
+
+    </table>
+    #if( "$!{company.headerText}" != "" )
+        ${company.headerText}
+    #end
+    <table width="100%" style="padding-top: 22px; float:left; width: 300px;">
+
+        <tr>
+            <td >
+                to:
+            </td>
+            <td   >
+                ${recipient.contactPerson.personalDetails.fullName}
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+
+
+
+                ${recipient.name}
+            </td>
+        </tr>
+
+        <tr>
+            <td >
+
+            </td>
+            <td>
+                #if( "$!recipient.address.lineOne" != "" )
+                    <p>${recipient.address.lineOne}</p>
+                #end
+            </td>
+        </tr>
+        <tr>
+            <td >
+
+            </td>
+            <td>
+                #if( "$!recipient.address.lineTwo" != "" )
+                    <p>${recipient.address.lineTwo}</p>
+                #end
+            </td>
+        </tr>
+        <tr>
+            <td >
+
+            </td>
+            <td>
+                #if( "$!recipient.address.lineThree" != "" )
+                    <p>${recipient.address.lineThree}</p>
+                #end
+            </td>
+        </tr>
+        <tr>
+            <td >
+
+            </td>
+            <td>
+                #if( "$!recipient.address.postCode" != "" )
+                    <p>${recipient.address.postCode}</p>
+                #end
+            </td>
+        </tr>
+
+
+
+    </table>
+    <table width="100%" style="padding-top: 22px; float:right; width: 300px; margin-bottom:70px">
+        <tr >
+            <td>
+                inv no:
+            </td>
+            <td>
+                $!{invoice.number}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                date:
+            </td>
+            <td>
+                $!DATE_TOOL.format(${DATE_FORMAT}, ${invoice.invoice.issueDate})
+            </td>
+        </tr>
+        <tr>
+            <td>
+                job ref:
+            </td>
+
+            <td>
+
+                $!{invoice.invoice.job.jobDetail.ownerProject.clientCRMEntry.externalCode}     $!{invoice.jobNumber}
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+                po ref:
+            </td>
+
+            <td>
+                #if( "${invoice.job.clientReference}" != "" )
+                    <p>$!{invoice.job.clientReference}</p>
+                #end
+            </td>
+        </tr>
+
+    </table>
+
+    <table width="100%" class="title" style:"float:clear">
+    <tr>
+        <td>
+            $!{invoice.job.jobDetail.name}
+        </td>
+    </tr>
+    </table>
+
+    <!--
+    ********************************************************************************
+    END OF TOP SECTION
+
+    ********************************************************************************
+    -->
+</DIV>
+
+#if( "$!{invoice.job.jobDetail.description}" != "" )
+    <div class="jobDescription">
+        <p>
+            #htmlFormatText($!{invoice.job.jobDetail.description})
+        </p>
+    </div>
+#end
+
+
+<DIV id="pageHeader" class="pageHeader">
+    <!--
+    ********************************************************************************
+    BEGINNING OF PAGE HEADER SECTION
+    - this appears on every page but the first page. If you want this to appear on the cover page
+      as well, copy this section into the 'top' div
+    ********************************************************************************
+    -->
+    #if( "$!{company.headerText}" != "" )
+        ${company.headerText}
+    #end
+    <!--
+    ********************************************************************************
+    END OF PAGE HEADER SECTION
+    ********************************************************************************
+    -->
+</DIV>
+
+<DIV id="pageFooter" class="pageFooter">
+    <!--
+    ********************************************************************************
+    BEGINNING OF PAGE FOOTER SECTION
+    - This appears at the bottom of every page
+    ********************************************************************************
+    -->
+    #if( "$!{company.footerText}" != "" )
+        ${company.footerText}
+    #end
+    <!--
+    ********************************************************************************
+    END OF PAGE FOOTER SECTION
+    ********************************************************************************
+    -->
+</DIV>
+
+    #if( "$!{company.annexText}" != "" )
+    <DIV id="annex" class="annex">
+        <!--
+        ********************************************************************************
+        BEGINNING OF ANNEX SECTION
+        - this appears after the list of items
+        ********************************************************************************
+        -->
+        ${company.annexText}
+        <!--
+        ********************************************************************************
+        END OF ANNEX SECTION
+        ********************************************************************************
+        -->
+    </DIV>
+    #end
+
+<table class="items" id="items" width="100%">
+<!--
+********************************************************************************
+BEGINNING OF TABLE SECTION
+- this is the table containing the invoice items
+********************************************************************************
+-->
+<thead width="100%">
+<tr>
+  
+
+    #if( $DISPLAY_VAT )
+        <th style="width: 7ex;padding-bottom: 0px; vertical-align: bottom;">VAT</th>
+        #if( $!{invoice.dualTax} )
+            <th style="width: 7ex;padding-bottom: 0px; vertical-align: bottom;">VAT2</th>
+        #end
+        <th style="width: 7ex;padding-bottom: 0px; vertical-align: bottom;">Gross</th>
+    #end
+</tr>
+</thead>
+<tbody>
+    #set( $totalFees = 0.00 )
+    #foreach( $stage in ${invoice.invoice.invoiceStages} )
+        #if ( "$!{stage.jobStage.excludeFromInvoice}" != "true" )
+            #set( $stageTotal = 0.00 )
+            #set( $stageVAT = 0.00 )
+            #set( $stageVAT1 = 0.00 )
+            #set( $stageVAT2 = 0.00 )
+            #set( $stageGrandTotal = 0.00 )
+            #foreach( $stageItem in ${stage.invoiceLineItems} )
+                #set( $itemTotal = 0.00 )
+                #set( $itemVAT1 = 0.00 )
+                #set( $itemVAT2 = 0.00 )
+                #set( $itemGrandTotal = 0.00 )
+                #if( "$!{stageItem.lineItem.excludeFromInvoice}" != "true" )
+                    #if( ${invoice.job.multicurrencyEnabled} )
+                        #set( $itemVAT1 = $!{stageItem.invoicedTaxOneOtherCurrency.amount} )
+                        #set( $itemVAT2 = $!{stageItem.invoicedTaxTwoOtherCurrency.amount} )
+                        #set( $itemTotal = $!{stageItem.invoicedNetOtherCurrency.amount} )
+                        #set( $itemGrandTotal = $itemTotal + $itemVAT1 + $itemVAT2 )
+                    #else
+                        #set( $itemTotal = $!{stageItem.invoicedNet.amount} )
+                        #set( $itemVAT1 = $!{stageItem.invoicedTaxOne.amount} )
+                        #set( $itemVAT2 = $!{stageItem.invoicedTaxTwo.amount} )
+                        #set( $itemGrandTotal = $itemTotal + $itemVAT1 + $itemVAT2 )
+                    #end
+                    #set( $stageTotal = $stageTotal + $itemTotal )
+                    #set( $stageVAT = $stageVAT + $itemVAT1 + $itemVAT2 )
+                    #set( $stageVAT1 = $stageVAT1 + $itemVAT1)
+                    #set( $stageVAT2 = $stageVAT2 + $itemVAT2)
+                    #set( $stageGrandTotal = $stageGrandTotal + $itemGrandTotal)
+                #end
+            #end
+
+            #if( !$DISPLAY_STAGE_ITEMS)
+                #set( $totalFees = $totalFees + $stageTotal )
+            #end
+
+       
+        #end
+    #end
+
+    #set( $totalPurchases = 0.00 )
+    #set( $totalExpenses = 0.00 )
+
+    #set( $total = 0.00 )
+    #set( $totalVAT = 0.00 )
+    #set( $grandTotal = 0.00 )
+    #set( $amountNetByRateMap = {})
+    #set( $taxAmountByRateMap = {})
+    #set($taxOneTotal = 0.00)
+    #set($taxTwoTotal = 0.00)
+    #set( $currentTaxTotal = 0.00)
+    #set( $currentTaxValue = 0.00)
+    #foreach( $item in ${invoice.invoice.invoiceLineItems} )
+        #if( "$!{item.lineItem.excludeFromInvoice}" != "true" )
+            #set( $itemRate = 0.00 )
+            #set( $itemTotal = 0.00 )
+            #set( $itemVAT1 = 0.00 )
+            #set( $itemVAT2 = 0.00 )
+            #set( $itemGrandTotal = 0.00 )
+            #if( ${invoice.job.multicurrencyEnabled} )
+                #set( $itemRate = $!{item.lineItem.rateOtherCurrency.amount} )
+                #set( $itemTotal = $!{item.invoicedNetOtherCurrency.amount} )
+                #set( $itemVAT1 = $!{item.invoicedTaxOneOtherCurrency.amount} )
+                #set( $itemVAT2 = $!{item.invoicedTaxTwoOtherCurrency.amount} )
+                #set( $itemVAT = $itemVAT1 + $itemVAT2 )
+                #set( $itemGrandTotal = $itemTotal + $itemVAT1 + $itemVAT2 )
+            #else
+                #set( $itemRate = $!{item.lineItem.rate.amount} )
+                #set( $itemTotal = $!{item.invoicedNet.amount} )
+                #set( $itemVAT1 = $!{item.invoicedTaxOne.amount} )
+                #set( $itemVAT2 = $!{item.invoicedTaxTwo.amount} )
+                #set( $itemVAT = $itemVAT1 + $itemVAT2 )
+                #set( $itemGrandTotal = $itemTotal + $itemVAT1 + $itemVAT2 )
+            #end
+
+            #set( $total = $total + $itemTotal )
+            #set( $totalVAT = $totalVAT + $itemVAT1 + $itemVAT2 )
+            #set( $grandTotal = $grandTotal + $itemGrandTotal )
+
+            #set( $taxOnePercent = $item.taxOneRate * 100)
+            #set( $currentTaxTotal = $amountNetByRateMap.get($taxOnePercent))
+            #if($amountNetByRateMap.get($taxOnePercent))
+                #set($taxOneTotal = $currentTaxTotal + $itemTotal)
+                $amountNetByRateMap.put($taxOnePercent, $taxOneTotal)
+            #else
+                $amountNetByRateMap.put($taxOnePercent, $itemTotal)
+            #end
+
+            #if( $!{invoice.dualTax})
+                #set( $taxTwoPercent = $item.taxTwoRate * 100)
+                #set( $currentTaxTotal = $amountNetByRateMap.get($taxTwoPercent))
+                #if($amountNetByRateMap.get($taxTwoPercent))
+                    #set($taxTwoTotal = $currentTaxTotal + $itemTotal)
+                    $amountNetByRateMap.put($taxTwoPercent, $taxTwoTotal)
+                #else
+                    $amountNetByRateMap.put($taxTwoPercent, $itemTotal)
+                #end
+            #end
+
+            #set( $taxOnePercent = $item.taxOneRate * 100)
+            #set( $currentTaxTotal = $taxAmountByRateMap.get($taxOnePercent))
+            #if($taxAmountByRateMap.get($taxOnePercent))
+                #set($taxOneTotal = $currentTaxTotal + $itemVAT1)
+                $taxAmountByRateMap.put($taxOnePercent, $taxOneTotal)
+            #else
+                $taxAmountByRateMap.put($taxOnePercent, $itemVAT1)
+            #end
+
+            #if( $!{invoice.dualTax})
+                #set( $taxTwoPercent = $item.taxTwoRate * 100)
+                #set( $currentTaxTotal = $taxAmountByRateMap.get($taxTwoPercent))
+                #if($taxAmountByRateMap.get($taxTwoPercent))
+                    #set($taxTwoTotal = $currentTaxTotal + $itemVAT2)
+                    $taxAmountByRateMap.put($taxTwoPercent, $taxTwoTotal)
+                #else
+                    $taxAmountByRateMap.put($taxTwoPercent, $itemVAT2)
+                #end
+            #end
+
+            #if( $DISPLAY_STAGE_ITEMS || "$!{item.invoiceStage.jobStage.excludeFromInvoice}" != "false" )
+
+                #set( $isStageItem = false )
+
+                #set( $itemType = $!{item.chargeBandType} )
+                #if( $itemType == "THIRD_PARTY" )
+                    #set( $itemType = "3pty" )
+                    #set( $totalPurchases = $totalPurchases + $itemTotal )
+                #end
+                #if( $itemType == "TIME_FEE" )
+                    #set( $itemType = "fee" )
+                    #set( $totalFees = $totalFees + $itemTotal )
+                #end
+                #if( $itemType == "EXPENSES" )
+                    #set( $itemType = "exp" )
+                    #set( $totalExpenses = $totalExpenses + $itemTotal )
+                #end
+                #if( $itemType == "TIME" )
+                    #set( $itemType = "time" )
+                    #set( $totalFees = $totalFees + $itemTotal )
+                #end
+
+                #if( "$!{item.invoiceStage.jobStage.excludeFromInvoice}" == "false" )
+                <tr class="order-0000${item.lineItem.billLineItemOrder} stageitem type-${itemType}">
+                    #set( $descriptionColumnAdditionalStyle = " padding-left: 4mm;" )
+                    #set( $isStageItem = true )
+                #else
+                <tr class="order-0000${item.lineItem.billLineItemOrder} item type-${itemType}">
+                    #set( $descriptionColumnAdditionalStyle = "" )
+                #end
+
+                <td style="${descriptionColumnAdditionalStyle}" #if( $isStageItem && "${DISPLAY_STAGE_ITEMS_PRICE}" == "false" && "$DISPLAY_RATE_AND_QUANTITY" == false )
+                    colspan="3" #end>
+                    #if( "$!{item.lineItem.description}" != "" )
+                      
+                    #end
+                    #set( $itemNote = "$!{item.lineItem.externalNote}" )
+                    #if( $DISPLAY_INTERNAL_NOTE )
+                        #set( $itemNote = "$!{item.lineItem.internalNote}" )
+                    #end
+                    #if( "$!{itemNote}" != "" )
+                        <div class="note">
+                            #flexRichTextToHtml( ${itemNote} )
+                        </div>
+                    #end
+                </td>
+                #if ( $DISPLAY_RATE_AND_QUANTITY )
+                    
+                #end
+                #if( !$isStageItem || ( $isStageItem && ${DISPLAY_STAGE_ITEMS_PRICE} ) )
+                  
+                    #if( $DISPLAY_VAT )
+                        
+                        #if( $!{invoice.dualTax} )
+                           
+                        #end
+                       
+                    #end
+                #end
+            </tr>
+            #end
+        #end
+    #end
+</tbody>
+
+<!--
+********************************************************************************
+END OF TABLE SECTION
+********************************************************************************
+-->
+</table>
+
+<div id="itemsSummary">
+    <!--
+    ********************************************************************************
+    BEGINNING OF TABLE SUMMARY SECTION
+    - this is the table that contains the totals for the invoice items
+    ********************************************************************************
+    -->
+    #if( $DISPLAY_ONLY_TOTAL_INVOICE )
+        <table width="100%" style="padding-bottom: 5mm;">
+            <tr>
+                <td>
+                    Total Fees:
+                </td>
+                <td style="text-align:right">${invoice.currencySymbol} <span class="formattedNumber">${totalFees}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Total Purchases:
+                </td>
+                <td style="text-align:right">${invoice.currencySymbol} <span
+                        class="formattedNumber">${totalPurchases}</span></td>
+            </tr>
+            <tr>
+                <td>
+                    Total Expenses:
+                </td>
+                <td style="text-align:right">${invoice.currencySymbol} <span
+                        class="formattedNumber">${totalExpenses}</span>
+                </td>
+            </tr>
+        </table>
+    #end
+    <table width="100%">
+        <tr>
+            <td align="right">
+                <p style="text-align:right">Total:</P>
+            </td>
+            <td style="text-align: right; width: 12ex">${invoice.currencySymbol} <span
+                    class="formattedNumber">${invoice.netTotal}</span>
+            </td>
+        </tr>
+        #set( $displayVatInfo = false )
+        #if( $amountNetByRateMap.keySet().size() > 1 )
+            #set( $displayVatInfo = true )
+        #end
+        #foreach( $key in $amountNetByRateMap.keySet() )
+            #set($amountNetTotal = $amountNetByRateMap.get($key))
+            #set($taxAmountTotal = $taxAmountByRateMap.get($key))
+            <tr>
+                <td style="text-align: right">VAT#if( $displayVatInfo ) ${invoice.currencySymbol}<span
+                        class="formattedNumber">${amountNetTotal}</span> @ <span class="formattedNumber">${key}</span>
+                    %#end:
+                </td>
+                <td style="text-align: right; width: 12ex">${invoice.currencySymbol} <span
+                        class="formattedNumber tax">${taxAmountTotal}</span>
+                </td>
+            </tr>
+        #end
+        <tr>
+            <td style="text-align:right; font-weight: bold;">Grand Total:</td>
+            <td style="text-align: right;font-weight: bold; width: 12ex">${invoice.currencySymbol} <span
+                    class="formattedNumber">${invoice.grossTotal}</span></td>
+        </tr>
+    </table>
+    <!--
+    ********************************************************************************
+    END OF TABLE SUMMARY SECTION
+    ********************************************************************************
+    -->
+
+    <div id="footer2">
+        <p>Payment terms $!{invoice.invoice.creditTerms.description}</p>
+        <p>Please make all cheques payable to JPCreative Ltd.</p>
+        <p>Payment by BACs to:</p>
+        <p>JPCreative Ltd</p>
+        <p>HSBC</p>
+        <p>Account number: 61390279</p>
+        <p>Sort code: 400122</p>
+        <p>BIC : MIDLGB2140A</p>
+        <p>IBAN : GB89MIDL40012261390279</p>
+
+
+    </div>
+</div>
+
+
+<div id="pageNumerator">
+    <table width="100%">
+        <tr>
+            <td class="pageNumerator"></td>
+            <td>Page <span class="pageNumber">#PageNum#</span> of <span class="pageTotal">#PageTotal#</span></td>
+        </tr>
+    </table>
+</div>
+
+<div class="pageBreak" id="pageBreak"></div>
+
+<div id="page" class="page">
+    <table class="pageTable">
+        <tr>
+            <td colspan="2" id="headerWrapper" class="headerWrapper">
+                <div id="header"></div>
+            </td>
+        </tr>
+        <tr>
+            <td id="leftColumnWrapper" class="leftColumnWrapper"></td>
+            <td id="contentWrapper" class="contentWrapper">
+                <div id="content"></div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" id="footerWrapper" class="footerWrapper">
+                <div id="footer"></div>
+            </td>
+        </tr>
+    </table>
+</div>
+</div>
+
+<div id="result"></div>
+
+</body>
+</html>
