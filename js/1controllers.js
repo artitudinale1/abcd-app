@@ -46,8 +46,7 @@ app.controller('Cntl2', function($firebase, $location, $scope,$rootScope,  filte
       "July", "August", "September", "October", "November", "December" ];
       //ALL VARIABLE IN ROOTSCOPE CAUSE WE NEED THEM THOUGH ALL APP
       $rootScope.current_month = new Date();
-      $rootScope.month_value = $rootScope.current_month.getMonth() ;
-      $rootScope.month_name = $rootScope.current_month.getMonth() + 1;
+      $rootScope.month_value = $rootScope.current_month.getMonth();
       $rootScope.month = $rootScope.months[$rootScope.month_value] ;
 
       //VOTES
@@ -90,9 +89,8 @@ app.controller('Cntl2', function($firebase, $location, $scope,$rootScope,  filte
       $scope.checkIfUserExists($rootScope.user.screen_name);
 
 
-    //CHECK IF USER ALREADY VOTE THIS MONTH
+      //CHECK IF USER ALREADY VOTE THIS MONTH
       $scope.checkifuvoted = function(username, date) {
-        $scope.alreadyVoted = false;
         //TEMP JSON OF VOTES
        var TempVotesObjs =[]
        for(var key in $scope.votes) { //GOING THOUGH FIREBASE SNAPSHOT OF VOTES
@@ -102,40 +100,26 @@ app.controller('Cntl2', function($firebase, $location, $scope,$rootScope,  filte
         }
         //GO THOUGH TEMP JSON VOTE LOOKING FOR DATE PROPRETY
         for (var date in TempVotesObjs){
-
               var DateAsArrey = TempVotesObjs[date]['date'].split("/");
               //FORMAT DATA TO COMPARE WITH CURRENT DATA
               var FormattingVotingData = DateAsArrey[1] + "-" + DateAsArrey[0] + "-" + DateAsArrey[2];
               var VotingData = new Date(FormattingVotingData);
               var VotingMonth = VotingData.getMonth()+1;
               var VotingYear = VotingData.getFullYear();
-               console.log('vvv')
               //COMPARE VOTING MONTH WITH CURRENT MONTH
-              if(TempVotesObjs[date]["from"] === $rootScope.user.screen_name && VotingMonth === $rootScope.month_name){
+              if(TempVotesObjs[date]["from"] === $rootScope.user.screen_name && VotingMonth === $rootScope.month_value){
                 //THAT MEANS USER AREADY VOTE THI MONTH
-                console.log('USER CANnot VOTE')
-                 console.log(TempVotesObjs[date]["from"] )
-                  console.log($rootScope.user.screen_name)
-                  console.log(VotingMonth)
-                  console.log($rootScope.month_name)
-                  $scope.alreadyVoted = false
-                
-                }else{
-                   console.log(TempVotesObjs[date]["from"] )
-                  console.log($rootScope.user.screen_name)
-                  console.log(VotingMonth)
-                  console.log($rootScope.month_value)
-                  console.log('USER CAN VOTE'); 
-                   $scope.alreadyVoted = true
+                return false
+                } else{
+                  //console.log('USER CAN VOTE')
                 }
-                 // MY RETURN TRUE OUTSIDE THE LOOP OTHERWISE THE LOOP IS INTERUPTED
               } //END OF LOOP THOUGH THIS MONTHS VOTES                  
-           
+              return true // MY RETURN TRUE OUTSIDE THE LOOP OTHERWISE THE LOOP IS INTERUPTED
           };
+
           //FUNCTION TO ADD VOTE
           $scope.addVote = function() {
-              $scope.checkifuvoted($rootScope.user.screen_name, today)
-              if ($scope.alreadyVoted) {
+              if ($scope.checkifuvoted($rootScope.user.screen_name, today) ) {
                 //IF USER DIDN'T VOTE THIS MONTH PUSH THE VOTE ON FIREBASE AND THANK U PAGE
                 $scope.VotesUrl.push({from:$rootScope.user.screen_name, to:$scope.voteTo, motivation: $scope.voteMotivation, date:today });
                 $location.path('/view3').replace();
@@ -325,7 +309,7 @@ app.controller('Cntl3', function($firebase, $location, $scope,$rootScope,  filte
           }
         }
       }
-      console.log(arreyVotesMonth)
+      
 } //END ELSE THAT CHECK FOR USERS LOGGED
        
 }); //END CONTROLLER 3
