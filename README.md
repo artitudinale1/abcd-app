@@ -27,4 +27,4 @@ pswrd <i>london2003</i>
 
 ##<b>TECHNOLOGIES USED</b>##
 
-AngularJS, Firebase, HTML5, CSS, Bootsrap, Awesome Font
+AngularJS, Firebase, Twitter API, HTML5, CSS, Bootsrap, Awesome Font
