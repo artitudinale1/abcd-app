@@ -1,6 +1,6 @@
 ABC - JPC internal voting app
 
-BRIEF/BACKGOUND PROJECT
+<b>BRIEF/BACKGOUND PROJECT</b></br>
 I developed a Smartphone application for internal company use. 
 Every month all employees nominate top performing colleagues who distinguished themselves for the hard work; a prize is assigned to the one with most votes. 
 An end of year prize is given to the employee with the most votes in that year. 
