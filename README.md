@@ -16,7 +16,7 @@ An admin backdoor can be used to see the results, view the calculation of the re
 
 The admin account can also see all Votes and motivations for the current month with the possibility to delete a candidate.
 
-##<b>DETAILS</b>##
+##<b>ACCESS TO THE PROJECT</b>##
 
 App visible at http://artitudinale.org.uk/abcJpcApp
 If you want to login to view the admin account I create an appositeve Twiteer account, please use responsibly:
@@ -25,6 +25,23 @@ usrn <i>abcjpctest@gmail.com</i>
 
 pswrd <i>london2003</i>
 
+##<b>CROSS-BROWSER TESTING</b>##
+
+At the moment this project has been tested in : Chrome 38.0
+
 ##<b>TECHNOLOGIES USED</b>##
 
 AngularJS, Firebase, Twitter API, HTML5, CSS, Bootsrap, Awesome Font
+
+##<b>FUTURE IMPROVEMENT</b>##
+<i>Those are bugs to fix and some ideas to improve the project</i>
+
+  - Debug major JS error appearing on Results View : Uncaught SyntaxError: Illegal return statement
+  - Clean console.logs
+  - CSS review and tidy up code
+  - Cross-browser testing on major browsers
+  - Wrap project in Phonegap/Cordova
+  - Test project on Smartphone
+  - Insert an automatic reseting of Firebase data at end of solar year
+  
+   
