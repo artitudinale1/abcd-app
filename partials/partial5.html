@@ -1,25 +1,13 @@
 
-<div ng-controller="Cntl5"   >
-
-<div id="clear" style="height:100px">
-	
-
-
-
-<p class="title" style="margin-top:40px"> Sorry, it appears you have already voted for mounth of {{ m }} :( ) </p>
-<p>Don't forget to come back next month!</p>
-
+<div ng-controller="Cntl5">
+	<div id="clear" style="height:100px">
+		<p class="title" style="margin-top:40px"> Sorry, it appears you have already voted for mounth of {{ month }} :( ) </p>
+		<p>Don't forget to come back next month!</p>
+	</div>
+	<div id="clear" style="height:50px">
+		 <div align="center"><img src="img/dot.png"/></div>
+	</div>
+	<div id="clear">
+		 <div align="center" ng-click="logout()" ><a href="#"><p><img src="img/home-icon.png" valign="middle"/> HOME </p></a></div>
+	</div>
 </div>
-
-<div id="clear" style="height:50px">
-	 <div align="center"><img src="img/dot.png"/></div>
-
-
- </div>
-
-
-<div id="clear">
-	 <div align="center" ng-click="logout()" ><a href="#"><p><img src="img/home-icon.png" valign="middle"/> HOME </p></a></div>
-
-
- </div>

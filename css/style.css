@@ -22,33 +22,36 @@
 h3{
 	font-size:14pt;
 }
+
 #JPacess {
 display:none;
 }
 
 .nameimg {
-
-width: 96px;
-
+  width: 96px;
 	height:70px;
-text-align: center;
+  text-align: center;
 }
+
 .votes {
 	min-height: 100px;
 	background: #d2d2d2;
 	margin-top: -10px;
-padding: 10px 4px 0px 10px;
+  padding: 10px 4px 0px 10px;
 }
+
 .names {
 	margin-top: -20px;
 	font-style: italic;
 }
+
  body {
  	background: #eeeeee;
- color: #939598;
+  color: #939598;
   font-family: "Arial";
 
  }
+
 #version p {
 	color: #939598;
   font-family: "Arial";
@@ -57,26 +60,13 @@ padding: 10px 4px 0px 10px;
 }
 
 .cont {
-margin-left: auto;
- margin-right: auto;
-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 320px;
 
 }
-.main {
-margin-left: auto;
- margin-right: auto;
-width: 300px;
-background: #e6e6e6;
-padding: 10px;
-}
- 
-
-/* Portrait tablet to landscape and desktop */
 
 #login{
-
-
-
     width:242px;
 }
 
@@ -84,27 +74,17 @@ padding: 10px;
     display:none;
 }
 
-
- }
- /* Landscape phone to portrait tablet */
-
-
 .main {
-margin-left: auto;
- margin-right: auto;
-width: 320px;
-background: #e6e6e6;
-padding: 10px;
-}
-
+  margin-left: auto;
+  margin-right: auto;
+  width: 300px;
+  background: #e6e6e6;
+  padding: 10px;
  }
  
-
-	.title {
+.title {
 	margin-left:auto;
 	margin-right:auto;
-
-
 }
 
 .pic {
@@ -113,17 +93,17 @@ padding: 10px;
 }
 
 .users  {
-max-width: 160px
+  max-width: 160px
 }
+
 ul li{
 	list-style:none;
 }
 
 #version {
-margin-left: auto;
+    margin-left: auto;
     margin-right: auto;
     width:180px;
-
 }
 
 

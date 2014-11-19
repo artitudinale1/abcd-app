@@ -1,48 +1,26 @@
 
-<div ng-controller="Cntl1"  >
-
-
-
-<div id="left">
-  <p > Signed in as <i id="userlogged"> {{ userlogged }} </i>  </p>
-
-</div>
-
-
-
-<div id="right">
-    
-    <p ng-click="logout()" > <a href="#">SIGN OUT</a> </p>
-</div>
-<div id="clear">
-	 <div align="center"><img src="img/dot.png"/></div>
-  <p style="font-size:13pt; text-align:left;"> Your vote for the month of <i> {{month }} </i></p>
-
+<div ng-controller="Cntl2">
+  <div id="left">
+    <p> Signed in as <i id="userlogged"> {{userlogged}}</i></p>
+  </div>
+  <div id="right">
+      <p ng-click="logout()" > <a href="#">SIGN OUT</a> </p>
+  </div>
+  <div id="clear">
+	  <div align="center"><img src="img/dot.png"/></div>
+    <p style="font-size:13pt; text-align:left;"> Your vote for the month of <i> {{month }} </i></p>
  </div>
  <div align="center">
-<div id="personeTo" get-pic> </div>
-
-<br/>
-
-
-<form ng-submit="addVote()" name="myForm" novalidate id="form" >
-
-  <select  id="userslist" ng-model="voteTo" >
-
-
-               <option ng-repeat="user in users"  id="{{ user.pic }}" value=" {{ user.name }}">{{ user.name }}   </option>
-  			   
-		</select>
-
-         
-          <textarea rows="4" cols="50" ng-model="voteMotivation"  placeholder="I nominate this person because.." required> </textarea> <br/>
-     <input id="vote_bt" class="btn-primary" type="submit" value="Vote!"  ng-disabled="myForm.$invalid">
-
-
-
-</form>
-</div>
-<p id="JPacess" ng-click="viewResults()" get-result > <a href="javascript:return false;" style="color:#939598;"> <img src="img/results.png" valign="middle"/>  VIEW RESULTS </a> </p>
-
+    <div id="personeTo" get-pic> </div>
+    <br/>
+    <form ng-submit="addVote()" name="myForm" novalidate id="form" >
+        <select  id="userslist" ng-model="voteTo" >
+            <option ng-repeat="user in users"  id="{{ user.pic }}" value=" {{ user.name }}">{{ user.name }}   </option>
+	      </select>
+        <textarea rows="4" cols="50" ng-model="voteMotivation"  placeholder="I nominate this person because.." required> </textarea><br/>
+        <input id="vote_bt" class="btn-primary" type="submit" value="Vote!"  ng-disabled="myForm.$invalid">
+      </form>
+  </div>
+  <p id="JPacess" ng-click="viewResults()" get-result > <a href="javascript:return false;" style="color:#939598;"> <img src="img/results.png" valign="middle"/>  VIEW RESULTS </a> </p>
 </div>
 
