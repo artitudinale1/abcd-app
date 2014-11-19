@@ -16,7 +16,9 @@ The admin account can also see all Votes and motivations for the current month w
 
 App visible at http://artitudinale.org.uk/abcJpcApp
 If you want to login to view the admin account I create an appositeve Twiteer account, please use responsibly:
+
 <i>abcjpctest@gmail.com</i>
+
 <i>london2003</i>
 
 <b>TECHS USED</b>
