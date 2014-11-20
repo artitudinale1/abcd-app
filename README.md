@@ -35,7 +35,9 @@ AngularJS, Firebase, Twitter API, HTML5, CSS, Bootsrap, Awesome Font
 
 ##<b>FUTURE IMPROVEMENT</b>##
 <i>Those are bugs to fix and some ideas to improve the project</i>
-
+  - There s a bug: when user first login they are actully allow to vote for themself, it shouldn't happen.
+    A review to CheckifuVote function with an update to the snapshot of the Firebase data, should be enough to
+    work around the issue - to be implemented asap.
   - Debug major JS error appearing on Results View : Uncaught SyntaxError: Illegal return statement
   - Clean console.logs
   - CSS review and tidy up code
