@@ -1,6 +1,6 @@
 #<b>ABC - JPC internal voting app#
 
-##<b>BRIEF/BACKGOUND PROJECT</b>##
+##<b>BRIEF/BACKGROUND PROJECT</b>##
 
 I developed a Smartphone application for internal company use. 
 
