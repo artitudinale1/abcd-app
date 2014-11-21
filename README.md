@@ -46,4 +46,4 @@ AngularJS, Firebase, Twitter API, HTML5, CSS, Bootsrap, Awesome Font
   - Test project on Smartphone
   - Insert an automatic reseting of Firebase data at end of solar year
   
-   
+<b>PLESE IF YOU EXPERIMENT ANY BUGS/ERRORS/PROBLEMS TESTiNG OR CHECKING OUT THIS PROJECT</b> report it though GITHUB or @ alex.garulli@gmail.com
